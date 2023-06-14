@@ -60,22 +60,31 @@ const userLogin = async (req, res) => {
   }
 };
 
-const userLogout = async (req, res) => {
-  console.log("Logged out");
-  delete req.session.valid;
-  delete req.session.userData;
-  res.redirect("http://localhost:3000/");
-};
 
 const getUserDetails = async (req, res, next) => {
   try {
     const {id} = req.body;
+    const userDetails = await User.findByPk(id);
+    if(!userDetails){
+        res.status(405).send({msg:"User does not exist"});
+        return;
+    }
     const bookedTickets = await Booking.findAll({
+      include:[
+        {
+          model:Hotel,
+          required:true,
+          attributes:["name" , "address"],
+        }
+      ],
       where: {
         userId: id,
       },
+      attributes: {
+        include:["numRoomsBooked" , "checkInDate" , "checkOutDate" , "roomType"],
+        exclude:["hotelId" , "userId"],
+      },
     });
-    const userDetails = await User.findByPk(id);
     res.json({
         ticketHistory: bookedTickets,
         userDetails: userDetails,
@@ -88,6 +97,5 @@ const getUserDetails = async (req, res, next) => {
 module.exports = {
   userLogin,
   userSignUp,
-  userLogout,
   getUserDetails,
 };

@@ -7,15 +7,25 @@ const Booking = require("../models").Booking;
 
 const checkRoomAvailability = async (req, res) => {
   try {
-    const { hotelId, roomType ,checkInDate , checkOutDate} = req.body;
-    const formatted = new Date(checkInDate);
+    const { hotelId ,checkInDate , checkOutDate} = req.body;
+    const formattedCheckIn = new Date(checkInDate);
+    const formattedCheckOut = new Date(checkOutDate);
     const numberBookedInInterval = await Booking.findAll({
       where: {
         hotelId: hotelId,
-        roomType: roomType,
+        [Op.or]:[
+          {
         checkOutDate: {
-          [Op.gt]: formatted,
-        },
+          [Op.gte]: formattedCheckIn,
+          [Op.lte]: formattedCheckOut,
+        },},
+        {
+          checkInDate:{
+            [Op.gte]:formattedCheckIn,
+            [Op.lte]:formattedCheckOut
+          }
+        }
+      ]
       },
     });
     const totalrooms = await Room.findAll({

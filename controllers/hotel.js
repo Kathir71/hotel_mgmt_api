@@ -6,10 +6,12 @@ const hotelCreate = async (req, res) => {
   try {
     const { name, address , roomInformation} = JSON.parse(req.body.hotelInfo);
     const files = req.files;
-    console.log(` name ${name}`)
+    console.log("FILESSS")
+    console.log(req.files);
+    console.log(req.body.roomCollection);
     const newHotel = await Hotel.create({
-      name: name,
-      address: address,
+      name: name.toUpperCase(),
+      address: address.toUpperCase(),
     });
     let sNumber = 1;
       roomInformation.forEach((room) => {
@@ -40,7 +42,8 @@ const hotelCreate = async (req, res) => {
 
 const fetchHotels = async (req, res) => {
   try {
-    const { query } = req.body;
+    let { query } = req.body;
+    query = query.toUpperCase();
     const hotels = await Hotel.findAll({
       where: {
         [Op.or]: [

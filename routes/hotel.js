@@ -1,16 +1,38 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const upload = require('multer')();
+const upload = require("multer")();
 const {
-    hotelCreate,
-    fetchHotels,
-    getHotelDetails,
-} = require ("../controllers/hotel");
+  hotelCreate,
+  fetchHotels,
+  getHotelDetails,
+} = require("../controllers/hotel");
 
-router.post("/create" , upload.array('roomCollection'),hotelCreate);
+const { validate } = require("../validators/index");
 
-router.post("/search" , fetchHotels);
+const {
+  hotelCreateChain,
+  hotelSearchChain,
+  hotelDetailsChain,
+} = require("../validators/hotelValidator");
 
-router.post("/getDetails" , getHotelDetails);
+router.post(
+  "/create",
+  upload.array("roomCollection"),
+  (req, res, next) => {
+    // console.log("hii");
+    // console.log(req);
+    console.log(req.body);
+    // req.body.hotelInfo = JSON.parse(req.body.hotelInfo);
+    // req.body.roomCollection = JSON.parse(req.body.roomCollection);
+    // console.log(req);
+    next();
+  },
+//   validate(hotelCreateChain),
+  hotelCreate,
+);
+
+router.post("/search", validate(hotelSearchChain), fetchHotels);
+
+router.post("/getDetails", validate(hotelDetailsChain), getHotelDetails);
 
 module.exports = router;
