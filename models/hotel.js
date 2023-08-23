@@ -5,7 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Hotel extends Model {
    static associate(models) {
-      this.hasOne(models.Booking , {through:'hotelId'})
+      this.hasMany(models.Booking , {through:'hotelId'})
     }
   }
   Hotel.init({
