@@ -24,6 +24,18 @@ const checkRoomAvailability = async (req, res) => {
             [Op.gte]:formattedCheckIn,
             [Op.lte]:formattedCheckOut
           }
+        },
+        {
+          [Op.and]:[
+            {
+              checkInDate:{
+                [Op.lte]:formattedCheckIn,
+              },
+              checkOutDate:{
+                [Op.gte]:formattedCheckOut,
+              }
+            }
+          ]
         }
       ]
       },
@@ -57,13 +69,36 @@ const bookRoom = async (req, res) => {
     const { userId , hotelId, roomType, numRoomsRequired, checkInDate , checkOutDate } =
       req.body;
     const formatted = new Date(checkInDate);
+
+
     const numberBookedInInterval = await Booking.findAll({
       where: {
         hotelId: hotelId,
-        roomType: roomType,
+        [Op.or]:[
+          {
         checkOutDate: {
-          [Op.gt]: formatted,
+          [Op.gte]: formattedCheckIn,
+          [Op.lte]: formattedCheckOut,
+        },},
+        {
+          checkInDate:{
+            [Op.gte]:formattedCheckIn,
+            [Op.lte]:formattedCheckOut
+          }
         },
+        {
+          [Op.and]:[
+            {
+              checkInDate:{
+                [Op.lte]:formattedCheckIn,
+              },
+              checkOutDate:{
+                [Op.gte]:formattedCheckOut,
+              }
+            }
+          ]
+        }
+      ]
       },
     });
     const room = await Room.findOne({where:{
